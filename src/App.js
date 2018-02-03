@@ -21,7 +21,7 @@ class App extends Component {
     }
 
     runAI() {
-        let ai = this.minimax(this.clone(this.state.board));
+        let ai = this.minimax(this.clone(this.state.board), this.state.current_player);
         console.log(ai);
     }
 
@@ -41,7 +41,7 @@ class App extends Component {
         return data;
     }
 
-    minimax(game) {
+    minimax(game, player) {
         const score = this.score(game);
         let moves = [],
             scores = [];
@@ -50,15 +50,17 @@ class App extends Component {
             return score.score;
         }
 
-        const possible_moves = this.getPossibleMoves(game);
-
-        console.log(possible_moves);
+        for (let move of this.getPossibleMoves(game)) {
+            const possible_board = this.getNewState(this.clone(game), move, player);
+            console.log(possible_board);
+        }
 
         return score;
     }
 
     getNewState(game, move, player) {
-
+        game[move[0]][move[1]] = this.state.players[player];
+        return game;
     }
 
     getPossibleMoves(game) {
