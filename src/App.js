@@ -43,9 +43,16 @@ class App extends Component {
 
     minimax(game) {
         const score = this.score(game);
+        let moves = [],
+            scores = [];
+
         if(score.game_over) {
             return score.score;
         }
+
+        const possible_moves = this.getPossibleMoves(game);
+
+        console.log(possible_moves);
 
         return score;
     }
@@ -54,8 +61,16 @@ class App extends Component {
 
     }
 
-    getAvailableMoves(game) {
-
+    getPossibleMoves(game) {
+        let moves = [];
+        game.map((row, rowIndex) => {
+            row.map((cell, cellIndex) => {
+                if(!cell) {
+                    moves.push([rowIndex, cellIndex]);
+                }
+            })
+        });
+        return moves;
     }
 
     handleCellClick() {
