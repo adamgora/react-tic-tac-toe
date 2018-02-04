@@ -17,12 +17,14 @@ class App extends Component {
             players: ['X', 'O'],
             ai_player: 'X',
             human_player: 'O',
+            ai_next_move: []
         }
     }
 
     runAI() {
         let ai = this.minimax(this.clone(this.state.board), this.state.current_player);
         console.log(ai);
+        console.log(this.state.ai_next_move);
     }
 
     score(game) {
@@ -32,9 +34,9 @@ class App extends Component {
             score: 0
         };
 
-        if(result.winner === this.state.aiPlayer) {
+        if(result.winner === this.state.ai_player) {
             data.score = 10;
-        } else if (result.winner === this.state.humanPlayer) {
+        } else if (result.winner === this.state.human_player) {
             data.score = -10
         }
 
@@ -52,10 +54,19 @@ class App extends Component {
 
         for (let move of this.getPossibleMoves(game)) {
             const possible_board = this.getNewState(this.clone(game), move, player);
-            console.log(possible_board);
+            scores.push(this.minimax(possible_board, player));
+            moves.push(move);
         }
 
-        return score;
+        if(player === 0) {
+            let max_index = this.getMaxIndex(scores);
+            this.setState({ai_next_move: moves[max_index]});
+            return scores[max_index];
+        } else {
+            let min_index = this.getMinIndex(scores);
+            this.setState({ai_next_move: moves[min_index]});
+            return scores[min_index];
+        }
     }
 
     getNewState(game, move, player) {
@@ -138,6 +149,34 @@ class App extends Component {
 
         return result;
 
+    }
+
+    getMaxIndex(arr) {
+        let index = 0,
+            max = 0;
+
+        arr.map((v, i) => {
+           if (v > max) {
+               max = v;
+               index = i;
+           }
+        });
+
+        return index;
+    }
+
+    getMinIndex(arr) {
+        let index = 0,
+            min = arr[0];
+
+        arr.map((v, i) => {
+            if (v < min) {
+                min = v;
+                index = i;
+            }
+        });
+
+        return index;
     }
 
     render() {
