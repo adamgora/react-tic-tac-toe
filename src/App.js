@@ -7,8 +7,8 @@ class App extends Component {
         super();
         this.state = {
             board: [
-                ['O', null, 'X'],
                 ['X', null, null],
+                [null, null, null],
                 ['X', 'O', 'O']
             ],
             board_locked: false,
@@ -17,14 +17,22 @@ class App extends Component {
             players: ['X', 'O'],
             ai_player: 'X',
             human_player: 'O',
-            ai_next_move: []
-        }
+        };
+        this.ai_next_move = [];
+    }
+
+    updateBoard(row, cell) {
+        const board = [...this.state.board];
+        if(board[row][cell]) {return false}
+        board[row][cell] = this.state.players[this.state.current_player];
+        this.setState({
+            board: board
+        });
     }
 
     runAI() {
-        let ai = this.minimax(this.clone(this.state.board), this.state.current_player);
-        console.log(ai);
-        console.log(this.state.ai_next_move);
+        this.minimax(this.clone(this.state.board), this.state.current_player);
+        this.updateBoard(this.ai_next_move[0], this.ai_next_move[1]);
     }
 
     score(game) {
@@ -34,7 +42,7 @@ class App extends Component {
             score: 0
         };
 
-        if(result.winner === this.state.ai_player) {
+        if (result.winner === this.state.ai_player) {
             data.score = 10;
         } else if (result.winner === this.state.human_player) {
             data.score = -10
@@ -48,23 +56,23 @@ class App extends Component {
         let moves = [],
             scores = [];
 
-        if(score.game_over) {
+        if (score.game_over) {
             return score.score;
         }
 
         for (let move of this.getPossibleMoves(game)) {
             const possible_board = this.getNewState(this.clone(game), move, player);
-            scores.push(this.minimax(possible_board, player));
+            scores.push(this.minimax(possible_board, Number(!player)));
             moves.push(move);
         }
 
-        if(player === 0) {
+        if (player === 0) {
             let max_index = this.getMaxIndex(scores);
-            this.setState({ai_next_move: moves[max_index]});
+            this.ai_next_move = moves[max_index];
             return scores[max_index];
         } else {
             let min_index = this.getMinIndex(scores);
-            this.setState({ai_next_move: moves[min_index]});
+            this.ai_next_move = moves[min_index];
             return scores[min_index];
         }
     }
@@ -78,7 +86,7 @@ class App extends Component {
         let moves = [];
         game.map((row, rowIndex) => {
             row.map((cell, cellIndex) => {
-                if(!cell) {
+                if (!cell) {
                     moves.push([rowIndex, cellIndex]);
                 }
             })
@@ -103,7 +111,7 @@ class App extends Component {
         };
 
         // check all rows
-        for(let row of board) {
+        for (let row of board) {
             const distinct = Array.from(new Set([...row]));
             if (distinct.length === 1 && distinct[0]) {
                 winner = distinct[0];
@@ -111,9 +119,9 @@ class App extends Component {
         }
 
         // check all columns
-        for(let i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             let values = [];
-            for(let row of board) {
+            for (let row of board) {
                 values.push(row[i]);
             }
             const distinct = Array.from(new Set([...values]));
@@ -123,26 +131,26 @@ class App extends Component {
         }
 
         // check diagonals
-        if(board[0][0] === board[1][1] && board[0][0] === board[2][2] && board[0][0]) {
+        if (board[0][0] === board[1][1] && board[0][0] === board[2][2] && board[0][0]) {
             winner = board[0][0];
         }
-        if(board[0][2] === board[1][1] && board[0][2] === board[2][0] && board[0][2]) {
+        if (board[0][2] === board[1][1] && board[0][2] === board[2][0] && board[0][2]) {
             winner = board[0][2];
         }
 
         // check if tie
         let flattened = [].concat.apply([], board);
-        if(!winner && !~flattened.indexOf(null)) {
+        if (!winner && !~flattened.indexOf(null)) {
             result.is_tie = true;
         }
 
-        if(winner) {
+        if (winner) {
             console.log(`Winner is: ${winner}`);
             result.winner = winner;
             result.game_over = true;
         }
 
-        if(result.is_tie) {
+        if (result.is_tie) {
             console.log(`Game ended with a tie!`);
             result.game_over = true;
         }
@@ -156,10 +164,10 @@ class App extends Component {
             max = 0;
 
         arr.map((v, i) => {
-           if (v > max) {
-               max = v;
-               index = i;
-           }
+            if (v > max) {
+                max = v;
+                index = i;
+            }
         });
 
         return index;
