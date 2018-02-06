@@ -31,11 +31,11 @@ class App extends Component {
     }
 
     runAI() {
-        this.minimax(this.clone(this.state.board), this.state.current_player);
+        let a = this.minimax(this.clone(this.state.board), this.state.current_player);
         this.updateBoard(this.ai_next_move[0], this.ai_next_move[1]);
     }
 
-    score(game) {
+    score(game, depth) {
         const result = this.checkWinner(game);
         let data = {
             game_over: result.game_over,
@@ -43,18 +43,20 @@ class App extends Component {
         };
 
         if (result.winner === this.state.ai_player) {
-            data.score = 10;
+            data.score = 10 - depth;
         } else if (result.winner === this.state.human_player) {
-            data.score = -10
+            data.score = depth - 10
         }
 
         return data;
     }
 
-    minimax(game, player) {
-        const score = this.score(game);
+    minimax(game, player, depth = 0) {
+        const score = this.score(game, depth);
         let moves = [],
             scores = [];
+
+        depth += 1;
 
         if (score.game_over) {
             return score.score;
@@ -62,7 +64,7 @@ class App extends Component {
 
         for (let move of this.getPossibleMoves(game)) {
             const possible_board = this.getNewState(this.clone(game), move, player);
-            scores.push(this.minimax(possible_board, Number(!player)));
+            scores.push(this.minimax(possible_board, Number(!player), depth));
             moves.push(move);
         }
 
@@ -161,7 +163,7 @@ class App extends Component {
 
     getMaxIndex(arr) {
         let index = 0,
-            max = 0;
+            max = arr[0];
 
         arr.map((v, i) => {
             if (v > max) {
