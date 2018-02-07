@@ -7,18 +7,26 @@ class App extends Component {
         super();
         this.state = {
             board: [
-                ['X', null, null],
                 [null, null, null],
-                ['X', 'O', 'O']
+                [null, 'X', null],
+                [null, null, null]
             ],
             board_locked: false,
             game_over: false,
-            current_player: 0,
+            current_player: 1,
             players: ['X', 'O'],
             ai_player: 'X',
             human_player: 'O',
+            runAI: false,
         };
         this.ai_next_move = [];
+    }
+
+    componentDidUpdate() {
+        console.log('compoent updated');
+        /*if(this.state.runAI) {
+            this.runAI();
+        }*/
     }
 
     updateBoard(row, cell) {
@@ -30,9 +38,24 @@ class App extends Component {
         });
     }
 
+    handleCellClick(row, cell) {
+        this.updateBoard(row, cell);
+        this.switchPlayer();
+    }
+
+    switchPlayer() {
+        const new_player = Number(!this.state.current_player);
+        this.setState({
+            current_player: new_player,
+            runAI: this.state.ai_player == this.state.players[new_player]
+        });
+    }
+
     runAI() {
-        let a = this.minimax(this.clone(this.state.board), this.state.current_player);
+        this.minimax(this.clone(this.state.board), this.state.current_player);
         this.updateBoard(this.ai_next_move[0], this.ai_next_move[1]);
+        this.switchPlayer();
+        this.setState({runAi: !this.state.runAi});
     }
 
     score(game, depth) {
@@ -94,10 +117,6 @@ class App extends Component {
             })
         });
         return moves;
-    }
-
-    handleCellClick() {
-
     }
 
     clone(obj) {
@@ -190,6 +209,8 @@ class App extends Component {
     }
 
     render() {
+        console.log('render');
+
         return (
             <div id='game-board'>
                 {this.state.board.map((row, rindex) => {
