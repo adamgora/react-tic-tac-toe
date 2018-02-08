@@ -6,17 +6,10 @@ class App extends Component {
 
         super();
         this.state = {
-            board: [
-                [null, null, null],
-                [null, 'X', null],
-                [null, null, null]
-            ],
+            board: [0,0,0,0,0,0,0,0,0],
             board_locked: false,
             game_over: false,
             current_player: 1,
-            players: ['X', 'O'],
-            ai_player: 'X',
-            human_player: 'O',
             runAI: false,
         };
         this.ai_next_move = [];
@@ -209,27 +202,16 @@ class App extends Component {
     }
 
     render() {
-        console.log('render');
-
         return (
             <div id='game-board'>
-                {this.state.board.map((row, rindex) => {
-                    return (
-                        <div className="row" key={rindex}>
-                            {row.map((cell, cindex) => {
-                                return (
-                                    <div className="cell"
-                                         key={cindex}
-                                         onClick={() => this.handleCellClick(rindex, cindex)}
-                                    >
-                                        {cell}
-                                    </div>
-                                )
-                            })}
+                {this.state.board.map((cell, index) => {
+                    return(
+                        <div className="cell" key={index} onClick={() => this.handleCellClick(index)}>
+                            {!cell ? '' : cell === 1 ? 'X' : 'O'}
                         </div>
-                    )
+                    );
                 })}
-                <p>Current player is {this.state.players[this.state.current_player]}</p>
+                <p>Current player is {this.state.current_player}</p>
 
                 <button onClick={() => this.runAI()}>Run AI</button>
             </div>
