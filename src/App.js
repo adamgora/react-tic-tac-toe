@@ -6,7 +6,7 @@ class App extends Component {
 
         super();
         this.state = {
-            board: [0,0,0,0,0,0,0,0,0],
+            board: [0, 0, 0, 0, 0, 0, 0, 0, 0],
             board_locked: false,
             game_over: false,
             current_player: 1,
@@ -22,25 +22,33 @@ class App extends Component {
         }*/
     }
 
-    updateBoard(row, cell) {
+    updateBoard(index) {
         const board = [...this.state.board];
-        if(board[row][cell]) {return false}
-        board[row][cell] = this.state.players[this.state.current_player];
+        board[index] = this.state.current_player;
         this.setState({
             board: board
         });
+        return board;
     }
 
-    handleCellClick(row, cell) {
-        this.updateBoard(row, cell);
+    handleClick(index) {
+        let board = this.updateBoard(index);
+        let w = this.checkWinner(this.state.current_player, board);
+        if(w) {
+            console.log(this.state.current_player + ' has won');
+        }
+        let t = this.checkTie(board);
+        if(t) {
+            console.log('its a tie');
+        }
         this.switchPlayer();
     }
 
     switchPlayer() {
-        const new_player = Number(!this.state.current_player);
+        const new_player = this.state.current_player == 1 ? 2 : 1;
         this.setState({
             current_player: new_player,
-            runAI: this.state.ai_player == this.state.players[new_player]
+            //runAI: this.state.ai_player == this.state.players[new_player]
         });
     }
 
@@ -116,61 +124,19 @@ class App extends Component {
         return JSON.parse(JSON.stringify(obj));
     }
 
-    checkWinner(board) {
-        let winner = '';
-        let result = {
-            winner: '',
-            game_over: false,
-            is_tie: false,
-        };
+    checkWinner(player, board) {
+        return (board[0] === player && board[1] === player && board[2] === player) ||
+            (board[3] === player && board[4] === player && board[5] === player) ||
+            (board[6] === player && board[7] === player && board[8] === player) ||
+            (board[0] === player && board[3] === player && board[6] === player) ||
+            (board[1] === player && board[4] === player && board[7] === player) ||
+            (board[2] === player && board[5] === player && board[8] === player) ||
+            (board[0] === player && board[4] === player && board[8] === player) ||
+            (board[2] === player && board[4] === player && board[6] === player);
+    }
 
-        // check all rows
-        for (let row of board) {
-            const distinct = Array.from(new Set([...row]));
-            if (distinct.length === 1 && distinct[0]) {
-                winner = distinct[0];
-            }
-        }
-
-        // check all columns
-        for (let i = 0; i < 3; i++) {
-            let values = [];
-            for (let row of board) {
-                values.push(row[i]);
-            }
-            const distinct = Array.from(new Set([...values]));
-            if (distinct.length === 1 && distinct[0]) {
-                winner = distinct[0];
-            }
-        }
-
-        // check diagonals
-        if (board[0][0] === board[1][1] && board[0][0] === board[2][2] && board[0][0]) {
-            winner = board[0][0];
-        }
-        if (board[0][2] === board[1][1] && board[0][2] === board[2][0] && board[0][2]) {
-            winner = board[0][2];
-        }
-
-        // check if tie
-        let flattened = [].concat.apply([], board);
-        if (!winner && !~flattened.indexOf(null)) {
-            result.is_tie = true;
-        }
-
-        if (winner) {
-            console.log(`Winner is: ${winner}`);
-            result.winner = winner;
-            result.game_over = true;
-        }
-
-        if (result.is_tie) {
-            console.log(`Game ended with a tie!`);
-            result.game_over = true;
-        }
-
-        return result;
-
+    checkTie(board) {
+        return !board.some(x => x != 0);
     }
 
     getMaxIndex(arr) {
@@ -205,8 +171,8 @@ class App extends Component {
         return (
             <div id='game-board'>
                 {this.state.board.map((cell, index) => {
-                    return(
-                        <div className="cell" key={index} onClick={() => this.handleCellClick(index)}>
+                    return (
+                        <div className="cell" key={index} onClick={() => this.handleClick(index)}>
                             {!cell ? '' : cell === 1 ? 'X' : 'O'}
                         </div>
                     );
