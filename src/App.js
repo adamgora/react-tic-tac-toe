@@ -6,11 +6,13 @@ class App extends Component {
 
         super();
         this.state = {
-            board: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            board: [0, 0, 0, 0, 2, 0, 0, 0, 0],
             board_locked: false,
             game_over: false,
             current_player: 1,
             runAI: false,
+            minPlayer: 2,
+            maxPlayer: 1
         };
         this.ai_next_move = [];
     }
@@ -53,10 +55,61 @@ class App extends Component {
     }
 
     runAI() {
-        this.minimax(this.clone(this.state.board), this.state.current_player);
-        this.updateBoard(this.ai_next_move[0], this.ai_next_move[1]);
-        this.switchPlayer();
-        this.setState({runAi: !this.state.runAi});
+        let bestMove = -Infinity;
+        let move = 0;
+
+        for(let i = 0; i < this.state.board.length; i++) {
+            if(!this.state.board[i]) {
+                let possibleBoard = this.getNewState(this.clone(this.state.board), i, this.state.maxPlayer);
+                let possibleMoveValue = this.minMove(possibleBoard);
+                if (possibleMoveValue > bestMove) {
+                    bestMove = possibleMoveValue;
+                    move = i;
+                }
+            }
+        }
+
+        console.log(move);
+    }
+
+    minMove(board) {
+        if(this.checkWinner(this.state.maxPlayer, board)) { return Infinity }
+        if(this.checkWinner(this.state.minPlayer, board)) { return -Infinity }
+        if(this.checkTie(board)) { return 0 }
+
+        let bestMoveValue = Infinity;
+
+        for (let i = 0; i < board.length; i++) {
+            if(!board[i]) {
+                let possibleBoard = this.getNewState(this.clone(board), i, this.state.minPlayer);
+                let possibleMoveValue = this.maxMove(possibleBoard);
+                if(possibleMoveValue < bestMoveValue) {
+                    bestMoveValue = possibleMoveValue
+                }
+            }
+        }
+
+        return bestMoveValue
+    }
+
+    maxMove(board) {
+        if(this.checkWinner(this.state.maxPlayer, board)) { return Infinity }
+        if(this.checkWinner(this.state.minPlayer, board)) { return -Infinity }
+        if(this.checkTie(board)) { return 0 }
+
+        let bestMoveValue = -Infinity;
+
+        for (let i = 0; i < board.length; i++) {
+            if(!board[i]) {
+                let possibleBoard = this.getNewState(this.clone(board), i, this.state.maxPlayer);
+                let possibleMoveValue = this.minMove(possibleBoard);
+                if(possibleMoveValue > bestMoveValue) {
+                    bestMoveValue = possibleMoveValue
+                }
+            }
+        }
+
+        return bestMoveValue
     }
 
     score(game, depth) {
@@ -75,49 +128,9 @@ class App extends Component {
         return data;
     }
 
-    minimax(game, player, depth = 0) {
-        const score = this.score(game, depth);
-        let moves = [],
-            scores = [];
-
-        depth += 1;
-
-        if (score.game_over) {
-            return score.score;
-        }
-
-        for (let move of this.getPossibleMoves(game)) {
-            const possible_board = this.getNewState(this.clone(game), move, player);
-            scores.push(this.minimax(possible_board, Number(!player), depth));
-            moves.push(move);
-        }
-
-        if (player === 0) {
-            let max_index = this.getMaxIndex(scores);
-            this.ai_next_move = moves[max_index];
-            return scores[max_index];
-        } else {
-            let min_index = this.getMinIndex(scores);
-            this.ai_next_move = moves[min_index];
-            return scores[min_index];
-        }
-    }
-
-    getNewState(game, move, player) {
-        game[move[0]][move[1]] = this.state.players[player];
-        return game;
-    }
-
-    getPossibleMoves(game) {
-        let moves = [];
-        game.map((row, rowIndex) => {
-            row.map((cell, cellIndex) => {
-                if (!cell) {
-                    moves.push([rowIndex, cellIndex]);
-                }
-            })
-        });
-        return moves;
+    getNewState(board, index, player) {
+        board[index] = player;
+        return board;
     }
 
     clone(obj) {
