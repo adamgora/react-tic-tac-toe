@@ -6,22 +6,22 @@ class App extends Component {
 
         super();
         this.state = {
-            board: [0, 0, 0, 0, 2, 0, 0, 0, 0],
+            board: [0, 0, 0, 0, 0, 0, 0, 0, 0],
             board_locked: false,
             game_over: false,
             current_player: 1,
             runAI: false,
-            minPlayer: 2,
-            maxPlayer: 1
+            minPlayer: 1,
+            maxPlayer: 2,
+            ai_player: 2
         };
-        this.ai_next_move = [];
     }
 
     componentDidUpdate() {
         console.log('compoent updated');
-        /*if(this.state.runAI) {
+        if(this.state.runAI) {
             this.runAI();
-        }*/
+        }
     }
 
     updateBoard(index) {
@@ -50,59 +50,58 @@ class App extends Component {
         const new_player = this.state.current_player == 1 ? 2 : 1;
         this.setState({
             current_player: new_player,
-            //runAI: this.state.ai_player == this.state.players[new_player]
+            runAI: this.state.ai_player == new_player
         });
     }
 
     runAI() {
-        let bestMove = -Infinity;
+        let bestMove = -10;
         let move = 0;
+        let depth = 0
 
         for(let i = 0; i < this.state.board.length; i++) {
             if(!this.state.board[i]) {
                 let possibleBoard = this.getNewState(this.clone(this.state.board), i, this.state.maxPlayer);
-                let possibleMoveValue = this.minMove(possibleBoard);
+                let possibleMoveValue = this.minMove(possibleBoard, depth);
                 if (possibleMoveValue > bestMove) {
                     bestMove = possibleMoveValue;
                     move = i;
                 }
             }
         }
-
-        console.log(move);
+        this.handleClick(move);
     }
 
-    minMove(board) {
-        if(this.checkWinner(this.state.maxPlayer, board)) { return Infinity }
-        if(this.checkWinner(this.state.minPlayer, board)) { return -Infinity }
+    minMove(board, depth) {
+        if(this.checkWinner(this.state.maxPlayer, board)) { return 10 }
+        if(this.checkWinner(this.state.minPlayer, board)) { return -10 }
         if(this.checkTie(board)) { return 0 }
 
-        let bestMoveValue = Infinity;
+        let bestMoveValue = 10;
 
         for (let i = 0; i < board.length; i++) {
             if(!board[i]) {
                 let possibleBoard = this.getNewState(this.clone(board), i, this.state.minPlayer);
-                let possibleMoveValue = this.maxMove(possibleBoard);
+                let possibleMoveValue = this.maxMove(possibleBoard, depth +1);
                 if(possibleMoveValue < bestMoveValue) {
                     bestMoveValue = possibleMoveValue
                 }
             }
         }
-
         return bestMoveValue
     }
 
-    maxMove(board) {
-        if(this.checkWinner(this.state.maxPlayer, board)) { return Infinity }
-        if(this.checkWinner(this.state.minPlayer, board)) { return -Infinity }
+    maxMove(board, depth) {
+        if(this.checkWinner(this.state.maxPlayer, board)) { return 10 }
+        if(this.checkWinner(this.state.minPlayer, board)) { return -10 }
         if(this.checkTie(board)) { return 0 }
 
-        let bestMoveValue = -Infinity;
+        let bestMoveValue = -10;
 
         for (let i = 0; i < board.length; i++) {
             if(!board[i]) {
                 let possibleBoard = this.getNewState(this.clone(board), i, this.state.maxPlayer);
-                let possibleMoveValue = this.minMove(possibleBoard);
+                let possibleMoveValue = this.minMove(possibleBoard, depth + 1);
                 if(possibleMoveValue > bestMoveValue) {
                     bestMoveValue = possibleMoveValue
                 }
@@ -110,22 +109,6 @@ class App extends Component {
         }
 
         return bestMoveValue
-    }
-
-    score(game, depth) {
-        const result = this.checkWinner(game);
-        let data = {
-            game_over: result.game_over,
-            score: 0
-        };
-
-        if (result.winner === this.state.ai_player) {
-            data.score = 10 - depth;
-        } else if (result.winner === this.state.human_player) {
-            data.score = depth - 10
-        }
-
-        return data;
     }
 
     getNewState(board, index, player) {
@@ -149,35 +132,7 @@ class App extends Component {
     }
 
     checkTie(board) {
-        return !board.some(x => x != 0);
-    }
-
-    getMaxIndex(arr) {
-        let index = 0,
-            max = arr[0];
-
-        arr.map((v, i) => {
-            if (v > max) {
-                max = v;
-                index = i;
-            }
-        });
-
-        return index;
-    }
-
-    getMinIndex(arr) {
-        let index = 0,
-            min = arr[0];
-
-        arr.map((v, i) => {
-            if (v < min) {
-                min = v;
-                index = i;
-            }
-        });
-
-        return index;
+        return !board.some(x => x == 0);
     }
 
     render() {
