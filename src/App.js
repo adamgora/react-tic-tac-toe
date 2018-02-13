@@ -13,12 +13,12 @@ class App extends Component {
             runAI: false,
             minPlayer: 1,
             maxPlayer: 2,
-            ai_player: 2
+            AiPlayer: 2,
+            singlePlayerGame: false
         };
     }
 
     componentDidUpdate() {
-        console.log('compoent updated');
         if(this.state.runAI) {
             this.runAI();
         }
@@ -50,7 +50,7 @@ class App extends Component {
         const new_player = this.state.current_player == 1 ? 2 : 1;
         this.setState({
             current_player: new_player,
-            runAI: this.state.ai_player == new_player
+            runAI: this.state.AiPlayer == new_player && this.state.singlePlayerGame
         });
     }
 
