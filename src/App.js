@@ -7,7 +7,7 @@ class App extends Component {
         super();
         this.state = {
             board: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            board_locked: false,
+            boardLocked: true,
             game_over: false,
             current_player: 1,
             runAI: false,
@@ -34,6 +34,8 @@ class App extends Component {
     }
 
     handleClick(index) {
+        if(this.state.board[index] || this.state.boardLocked) {return false;}
+
         let board = this.updateBoard(index);
         let w = this.checkWinner(this.state.current_player, board);
         if(w) {
@@ -135,8 +137,8 @@ class App extends Component {
         return !board.some(x => x == 0);
     }
 
-    render() {
-        return (
+    renderGameBoard() {
+        return(
             <div id='game-board'>
                 {this.state.board.map((cell, index) => {
                     return (
@@ -145,9 +147,25 @@ class App extends Component {
                         </div>
                     );
                 })}
-                <p>Current player is {this.state.current_player}</p>
+            </div>
+        )
+    }
 
-                <button onClick={() => this.runAI()}>Run AI</button>
+    renderButtons() {
+        return (
+            <div id="game-buttons">
+                <button>1 Player</button>
+                <button>2 Players</button>
+            </div>
+        )
+    }
+
+    render() {
+        return (
+            <div id="game">
+                <h1>Tic Tac Toe</h1>
+                {this.renderGameBoard()}
+                {this.renderButtons()}
             </div>
         );
     }

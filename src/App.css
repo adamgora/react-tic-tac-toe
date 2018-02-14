@@ -1,3 +1,19 @@
+@import url('https://fonts.googleapis.com/css?family=Poiret+One');
+
+body {
+    font-family: 'Poiret One', cursive;
+}
+
+#game {
+    max-width: 200px;
+    margin: 0 auto;
+}
+
+#game h1 {
+    text-align: center;
+    font-size: 38px;
+}
+
 #game-board {
     max-width: 200px;
     display: flex;
@@ -16,4 +32,30 @@
     vertical-align: middle;
     line-height: 60px;
     cursor: pointer;
+    font-size: 30px;
+    box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+}
+
+#game-buttons {
+    text-align: center;
+    margin-top: 30px;
+}
+
+#game-buttons button {
+    display: inline-block;
+    margin: 0 6px;
+    box-shadow: none;
+    font-size: 18px;
+    padding: 5px 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 3px;
+    outline: 0;
+    font-family: 'Poiret One', cursive;
+}
+
+#game-buttons button:active {
+    background-color: #ccc;
+    color: #fff;
 }
