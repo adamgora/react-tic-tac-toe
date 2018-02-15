@@ -8,7 +8,7 @@ class App extends Component {
         this.state = {
             board: [0, 0, 0, 0, 0, 0, 0, 0, 0],
             boardLocked: true,
-            game_over: false,
+            gameInProgress: false,
             current_player: 1,
             runAI: false,
             minPlayer: 1,
@@ -19,9 +19,17 @@ class App extends Component {
     }
 
     componentDidUpdate() {
-        if(this.state.runAI) {
+        if (this.state.runAI) {
             this.runAI();
         }
+    }
+
+    startGame(numOfPlayers) {
+        this.setState({
+            boardLocked: false,
+            gameInProgress: true,
+            singlePlayerGame: numOfPlayers === 1
+        });
     }
 
     updateBoard(index) {
@@ -34,15 +42,17 @@ class App extends Component {
     }
 
     handleClick(index) {
-        if(this.state.board[index] || this.state.boardLocked) {return false;}
+        if (this.state.board[index] || this.state.boardLocked) {
+            return false;
+        }
 
         let board = this.updateBoard(index);
         let w = this.checkWinner(this.state.current_player, board);
-        if(w) {
+        if (w) {
             console.log(this.state.current_player + ' has won');
         }
         let t = this.checkTie(board);
-        if(t) {
+        if (t) {
             console.log('its a tie');
         }
         this.switchPlayer();
@@ -61,8 +71,8 @@ class App extends Component {
         let move = 0;
         let depth = 0
 
-        for(let i = 0; i < this.state.board.length; i++) {
-            if(!this.state.board[i]) {
+        for (let i = 0; i < this.state.board.length; i++) {
+            if (!this.state.board[i]) {
                 let possibleBoard = this.getNewState(this.clone(this.state.board), i, this.state.maxPlayer);
                 let possibleMoveValue = this.minMove(possibleBoard, depth);
                 if (possibleMoveValue > bestMove) {
@@ -75,17 +85,23 @@ class App extends Component {
     }
 
     minMove(board, depth) {
-        if(this.checkWinner(this.state.maxPlayer, board)) { return 10 }
-        if(this.checkWinner(this.state.minPlayer, board)) { return -10 }
-        if(this.checkTie(board)) { return 0 }
+        if (this.checkWinner(this.state.maxPlayer, board)) {
+            return 10
+        }
+        if (this.checkWinner(this.state.minPlayer, board)) {
+            return -10
+        }
+        if (this.checkTie(board)) {
+            return 0
+        }
 
         let bestMoveValue = 10;
 
         for (let i = 0; i < board.length; i++) {
-            if(!board[i]) {
+            if (!board[i]) {
                 let possibleBoard = this.getNewState(this.clone(board), i, this.state.minPlayer);
-                let possibleMoveValue = this.maxMove(possibleBoard, depth +1);
-                if(possibleMoveValue < bestMoveValue) {
+                let possibleMoveValue = this.maxMove(possibleBoard, depth + 1);
+                if (possibleMoveValue < bestMoveValue) {
                     bestMoveValue = possibleMoveValue
                 }
             }
@@ -94,17 +110,23 @@ class App extends Component {
     }
 
     maxMove(board, depth) {
-        if(this.checkWinner(this.state.maxPlayer, board)) { return 10 }
-        if(this.checkWinner(this.state.minPlayer, board)) { return -10 }
-        if(this.checkTie(board)) { return 0 }
+        if (this.checkWinner(this.state.maxPlayer, board)) {
+            return 10
+        }
+        if (this.checkWinner(this.state.minPlayer, board)) {
+            return -10
+        }
+        if (this.checkTie(board)) {
+            return 0
+        }
 
         let bestMoveValue = -10;
 
         for (let i = 0; i < board.length; i++) {
-            if(!board[i]) {
+            if (!board[i]) {
                 let possibleBoard = this.getNewState(this.clone(board), i, this.state.maxPlayer);
                 let possibleMoveValue = this.minMove(possibleBoard, depth + 1);
-                if(possibleMoveValue > bestMoveValue) {
+                if (possibleMoveValue > bestMoveValue) {
                     bestMoveValue = possibleMoveValue
                 }
             }
@@ -138,7 +160,7 @@ class App extends Component {
     }
 
     renderGameBoard() {
-        return(
+        return (
             <div id='game-board'>
                 {this.state.board.map((cell, index) => {
                     return (
@@ -154,8 +176,8 @@ class App extends Component {
     renderButtons() {
         return (
             <div id="game-buttons">
-                <button>1 Player</button>
-                <button>2 Players</button>
+                <button onClick={() => this.startGame(1)}>1 Player</button>
+                <button onClick={() => this.startGame(2)}>2 Players</button>
             </div>
         )
     }
