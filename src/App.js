@@ -9,7 +9,7 @@ class App extends Component {
             board: [0, 0, 0, 0, 0, 0, 0, 0, 0],
             boardLocked: true,
             gameInProgress: false,
-            current_player: 1,
+            currentPlayer: 1,
             runAI: false,
             minPlayer: 1,
             maxPlayer: 2,
@@ -32,9 +32,25 @@ class App extends Component {
         });
     }
 
+    restart() {
+        const board = [...this.state.board].map(x => 0);
+        this.setState({
+            board: board,
+            currentPlayer: 1
+        });
+    }
+
+    mainScreen() {
+        this.restart();
+        this.setState({
+            boardLocked: true,
+            gameInProgress: false,
+        });
+    }
+
     updateBoard(index) {
         const board = [...this.state.board];
-        board[index] = this.state.current_player;
+        board[index] = this.state.currentPlayer;
         this.setState({
             board: board
         });
@@ -47,9 +63,9 @@ class App extends Component {
         }
 
         let board = this.updateBoard(index);
-        let w = this.checkWinner(this.state.current_player, board);
+        let w = this.checkWinner(this.state.currentPlayer, board);
         if (w) {
-            console.log(this.state.current_player + ' has won');
+            console.log(this.state.currentPlayer + ' has won');
         }
         let t = this.checkTie(board);
         if (t) {
@@ -59,9 +75,9 @@ class App extends Component {
     }
 
     switchPlayer() {
-        const new_player = this.state.current_player == 1 ? 2 : 1;
+        const new_player = this.state.currentPlayer == 1 ? 2 : 1;
         this.setState({
-            current_player: new_player,
+            currentPlayer: new_player,
             runAI: this.state.AiPlayer == new_player && this.state.singlePlayerGame
         });
     }
@@ -175,10 +191,16 @@ class App extends Component {
 
     renderButtons() {
         return (
-            <div id="game-buttons">
-                <button onClick={() => this.startGame(1)}>1 Player</button>
-                <button onClick={() => this.startGame(2)}>2 Players</button>
-            </div>
+            !this.state.gameInProgress ?
+                <div id="game-buttons">
+                    <button onClick={() => this.startGame(1)}>1 Player</button>
+                    <button onClick={() => this.startGame(2)}>2 Players</button>
+                </div>
+                :
+                <div id="game-buttons">
+                    <button onClick={() => this.mainScreen()}>Powrót</button>
+                    <button onClick={() => this.restart()}>Nowa Gra</button>
+                </div>
         )
     }
 
