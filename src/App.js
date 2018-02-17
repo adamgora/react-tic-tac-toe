@@ -14,7 +14,8 @@ class App extends Component {
             minPlayer: 1,
             maxPlayer: 2,
             AiPlayer: 2,
-            singlePlayerGame: false
+            singlePlayerGame: false,
+            descriptiveResult: null,
         };
     }
 
@@ -25,15 +26,17 @@ class App extends Component {
     }
 
     startGame(numOfPlayers) {
+        this.setResult(null);
         this.setState({
             boardLocked: false,
             gameInProgress: true,
-            singlePlayerGame: numOfPlayers === 1
+            singlePlayerGame: numOfPlayers === 1,
         });
     }
 
     restart() {
         const board = [...this.state.board].map(x => 0);
+        this.setResult(null);
         this.setState({
             board: board,
             currentPlayer: 1
@@ -63,15 +66,21 @@ class App extends Component {
         }
 
         let board = this.updateBoard(index);
-        let w = this.checkWinner(this.state.currentPlayer, board);
-        if (w) {
-            console.log(this.state.currentPlayer + ' has won');
+        let winner = this.checkWinner(this.state.currentPlayer, board);
+        if (winner) {
+            this.setResult((winner === 1 ? 'X' : '0') + ' has won!');
         }
-        let t = this.checkTie(board);
-        if (t) {
-            console.log('its a tie');
+        let tie = this.checkTie(board);
+        if (tie) {
+            this.setResult(`It's a tie!`);
         }
         this.switchPlayer();
+    }
+
+    setResult(result) {
+        this.setState({
+            descriptiveResult: result
+        });
     }
 
     switchPlayer() {
@@ -180,11 +189,15 @@ class App extends Component {
             <div id='game-board'>
                 {this.state.board.map((cell, index) => {
                     return (
-                        <div className="cell" key={index} onClick={() => this.handleClick(index)}>
+                        <div className={"cell " + (this.state.descriptiveResult ? 'blurred' : '')} key={index}
+                             onClick={() => this.handleClick(index)}>
                             {!cell ? '' : cell === 1 ? 'X' : 'O'}
                         </div>
                     );
                 })}
+                <div id="game-result">
+                    {this.renderGameResult()}
+                </div>
             </div>
         )
     }
@@ -201,6 +214,12 @@ class App extends Component {
                     <button onClick={() => this.mainScreen()}>Powrót</button>
                     <button onClick={() => this.restart()}>Nowa Gra</button>
                 </div>
+        )
+    }
+
+    renderGameResult() {
+        return (
+            <h3>{this.state.descriptiveResult}</h3>
         )
     }
 
