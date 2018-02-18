@@ -31,6 +31,7 @@ class App extends Component {
             boardLocked: false,
             gameInProgress: true,
             singlePlayerGame: numOfPlayers === 1,
+            currentPlayer: 1
         });
     }
 
@@ -39,7 +40,8 @@ class App extends Component {
         this.setResult(null);
         this.setState({
             board: board,
-            currentPlayer: 1
+            currentPlayer: 1,
+            runAI: false,
         });
     }
 
@@ -211,8 +213,8 @@ class App extends Component {
                 </div>
                 :
                 <div id="game-buttons">
-                    <button onClick={() => this.mainScreen()}>Powrót</button>
-                    <button onClick={() => this.restart()}>Nowa Gra</button>
+                    <button onClick={() => this.mainScreen()}>Back</button>
+                    <button onClick={() => this.restart()}>New game</button>
                 </div>
         )
     }
